@@ -4,7 +4,7 @@ This script allow to automatically add members to the space.
 
 ## Usage
 
-First, you must create a CSV file to import members. CSV file must have two columns: **name** with member ID and _one_ of the following columns: 
+First, you must create a CSV file to import members. CSV file must have two columns: **name** with member name and _one_ of the following columns: 
 
 - **eolymp_user_id** - User ID for Eolymp account
 - **eolymp_username** - Username for Eolymp account
