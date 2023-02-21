@@ -28,6 +28,15 @@ The porting marked as `<index>` should be replaced with problem index in the con
 
 An example of CSV file for IOI contest with two problems:
 
+|time_offset|total_score|p1_score|p1_percentage|p2_score|p2_percentage|
+|-|-|-|-|-|-|
+|0|0|0|0|0|0|
+|300|50|50|0.5|0|0|
+|600|100|100|1|0|0|
+|900|200|100|1|100|1|
+
+In CSV format:
+
 ```csv
 time_offset,total_score,p1_score,p1_percentage,p2_score,p2_percentage
 0,0,0,0,0,0
@@ -39,6 +48,15 @@ time_offset,total_score,p1_score,p1_percentage,p2_score,p2_percentage
 In this example, participant solved first problem at 50% at 00:05:00, then at 00:10:00 she solved the problem fully (100%) and at 00:15:00 solved second problem, getting final result of 200 points.
 
 An example of CSV file for ICPC contest with two problems:
+
+|time_offset|total_score|total_penalty|p1_score|p1_penalty|p1_percentage|p1_attempts|p1_solved_in|p2_score|p2_penalty|p2_percentage|p2_attempts|p2_solved_in|
+|-|-|-|-|-|-|-|-|-|-|-|-|-|
+|300|0|0|0|0|0.5|1|0|0|0|0|0|0|
+|600|1|30|1|30|1|1|600|0|0|0|0|0|
+|900|2|45|1|30|1|1|600|1|15|1|0|900|
+
+
+In CSV format:
 
 ```csv
 time_offset,total_score,total_penalty,p1_score,p1_penalty,p1_percentage,p1_attempts,p1_solved_in,p2_score,p2_penalty,p2_percentage,p2_attempts,p2_solved_in
