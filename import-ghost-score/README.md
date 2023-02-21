@@ -14,12 +14,12 @@ First, you need to create a CSV file with the score for each Ghost account. The 
 
 The CSV should have the following columns:
 - **time_offset** - time when the score was recorded, specified in seconds since beginning of the competition (for example, 600 means the records reflects score at 00:10:00 of participation)
-- **total_score** - total score at the moment in time (suppose to be sum of scores in breakdown field, but not enforced)
-- **total_penalty** - total penalty at the moment in time (suppose to be sum of penalty in breakdown field, but not enforced)
+- **total_score** - total score at the moment in time (suppose to be sum of scores in the breakdown, but not enforced)
+- **total_penalty** - total penalty at the moment in time (suppose to be sum of penalty in the breakdown, but not enforced)
 
-Additionally, for each problem you should specify these columns.
+Additionally, you have to specify score breakdown by problem using these columns:
 - **p`<index>`_score** - score as defined by contest format (for IOI: from 0 to 100, for ICPC 0 or 1). **This column is required for each problem**
-- **p`<index>`_penalty** - penalty as defined by contest format (for ICPC: solved_in/60 + attempts*20)
+- **p`<index>`_penalty** - penalty as defined by contest format (for ICPC: `solved_in/60 + attempts*20`)
 - **p`<index>`_percentage** - percentage of scored points from 0 to 1 (1 means 100% or fully solved), this value does not depend on contest format
 - **p`<index>`_attempts** - number of attempts to solve problem before successful attempt
 - **p`<index>`_solved_in** - time in second to solve problem, since participant started contest, leave as 0 if not solved
