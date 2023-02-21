@@ -166,7 +166,7 @@ for row in reader:
 
 # import score
 try:
-    judge_pb2.ImportScoreInput(contest_id=contest_id, participant_id=participant_id, scores=scores)
+    judge.ImportScore(judge_pb2.ImportScoreInput(contest_id=contest_id, participant_id=participant_id, scores=scores))
 except Exception as e:
     print("An error occurred while importing score: {}".format(e))
     sys.exit(-1)
