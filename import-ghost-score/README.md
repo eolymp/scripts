@@ -10,7 +10,7 @@ Once you have Ghost account you can import score for each competition using this
 
 ## Usage
 
-First, you need to create a CSV file with the score for each Ghost account. The score can be imported has historical data, ie. you can specify different score during each moment in competition to reflect progress. If you don't want to import historical data, you can simply import a single record with time offset equal to 0.
+First, you need to create a CSV file with the score for each Ghost account. The score can be imported as historical data, ie. you can specify different score during each moment in competition to reflect progress. If you don't want to import historical data, you can simply import a single record with time offset equal to 0.
 
 The CSV should have the following columns:
 - **time_offset** - time when the score was recorded, specified in seconds since beginning of the competition (for example, 600 means the records reflects score at 00:10:00 of participation)
@@ -18,11 +18,11 @@ The CSV should have the following columns:
 - **total_penalty** - total penalty at the moment in time (suppose to be sum of penalty in breakdown field, but not enforced)
 
 Additionally, for each problem you should specify these columns.
-- **p<index>_score** - score as defined by contest format (for IOI: from 0 to 100, for ICPC 0 or 1). **This column is required for each problem**
-- **p<index>_penalty** - penalty as defined by contest format (for ICPC: solved_in/60 + attempts*20)
-- **p<index>_percentage** - percentage of scored points from 0 to 1 (1 means 100% or fully solved), this value does not depend on contest format
-- **p<index>_attempts** - number of attempts to solve problem before successful attempt
-- **p<index>_solved_in** - time in second to solve problem, since participant started contest, leave as 0 if not solved
+- **p`<index>`_score** - score as defined by contest format (for IOI: from 0 to 100, for ICPC 0 or 1). **This column is required for each problem**
+- **p`<index>`_penalty** - penalty as defined by contest format (for ICPC: solved_in/60 + attempts*20)
+- **p`<index>`_percentage** - percentage of scored points from 0 to 1 (1 means 100% or fully solved), this value does not depend on contest format
+- **p`<index>`_attempts** - number of attempts to solve problem before successful attempt
+- **p`<index>`_solved_in** - time in second to solve problem, since participant started contest, leave as 0 if not solved
 
 The porting marked as `<index>` should be replaced with problem index in the contest.
 
