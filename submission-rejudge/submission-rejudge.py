@@ -22,7 +22,7 @@ parser.add_argument('-s', metavar="STATUS",
                     choices=['PENDING', 'TESTING', 'TIMEOUT', 'ERROR', 'FAILURE', 'COMPLETE'])
 
 parser.add_argument('space_key', help="Space Key")
-parser.add_argument('contest_id', help="Space Key")
+parser.add_argument('contest_id', help="Contest ID")
 
 args = parser.parse_args()
 client = HttpClient(token=os.getenv("EOLYMP_TOKEN"))
