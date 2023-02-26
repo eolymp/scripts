@@ -1,24 +1,14 @@
 import argparse
-import csv
 import os
 import sys
+import time
 
 import eolymp.universe.universe_pb2 as universe_pb2
 import eolymp.judge.judge_pb2 as judge_pb2
-import eolymp.judge.score_pb2 as score_pb2
-import eolymp.community.member_pb2 as member_pb2
-import eolymp.community.community_pb2 as community_pb2
-import eolymp.cognito.cognito_pb2 as cognito_pb2
 import eolymp.wellknown.expression_pb2 as expression_pb2
-import time
 from eolymp.core.http_client import HttpClient
 from eolymp.universe.universe_http import UniverseClient
-from eolymp.community.community_http import CommunityClient
-from eolymp.cognito.cognito_http import CognitoClient
 from eolymp.judge.judge_http import JudgeClient
-
-client = HttpClient(token=os.getenv("EOLYMP_TOKEN"))
-universe = UniverseClient(client)
 
 parser = argparse.ArgumentParser(
     prog='submission-rejudge',
@@ -35,8 +25,10 @@ parser.add_argument('space_key', help="Space Key")
 parser.add_argument('contest_id', help="Space Key")
 
 args = parser.parse_args()
+client = HttpClient(token=os.getenv("EOLYMP_TOKEN"))
 
 # lookup space
+universe = UniverseClient(client)
 try:
     out = universe.LookupSpace(universe_pb2.LookupSpaceInput(key=args.space_key))
     space = out.space
@@ -46,7 +38,6 @@ except Exception as e:
     sys.exit(-1)
 
 judge = JudgeClient(client, space.url)
-community = CommunityClient(client, space.url)
 
 # lookup contest
 try:
