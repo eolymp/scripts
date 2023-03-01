@@ -20,6 +20,8 @@ id,                        participant,problem,submit_time,        status,score
 6qtutrt5a14snceb2i8ba8cthc,sergey     ,A      ,2022-12-28 19:11:31,AC,    100.0
 ```
 
+If you would like to modify output format you can modify the script and add additional columns, map verdicts to a different values etc.
+
 Additionally, you can filter submissions by providing additional arguments:
 
 - `-p` - only export submissions for a given problem
