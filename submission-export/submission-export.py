@@ -36,7 +36,7 @@ def verdict(status, score):
 parser = argparse.ArgumentParser(
     prog='submission-export',
     description='Export contest submissions in a CSV table',
-    epilog='See more at https://github.com/eolymp/scripts/blob/main/submission-rejudge/README.md')
+    epilog='See more at https://github.com/eolymp/scripts/blob/main/submission-export/README.md')
 
 parser.add_argument('-p', metavar="PROBLEM-ID", help="Only export submissions for a given problem")
 parser.add_argument('-u', metavar="PARTICIPANT-ID", help="Only export submissions for a given participant")
