@@ -46,7 +46,7 @@ parser.add_argument('-s', metavar="STATUS",
 
 parser.add_argument('space_key', help="Space Key")
 parser.add_argument('contest_id', help="Contest ID")
-parser.add_argument('output', help="Output file", default="submissions.csv")
+parser.add_argument('output', help="Output file")
 
 args = parser.parse_args()
 client = HttpClient(token=os.getenv("EOLYMP_TOKEN"))
@@ -93,7 +93,7 @@ while True:
         break
 
 # open export file
-file = open(args.output, 'w', encoding='UTF8')
+file = open(args.output, 'w', encoding='UTF8', newline='\n')
 writer = csv.writer(file)
 
 # compose submission filters
