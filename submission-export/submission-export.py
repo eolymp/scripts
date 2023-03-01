@@ -18,7 +18,7 @@ def timestamp(ts: int):
     return datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
 
 
-def verdict(status, score):
+def verdict(status, percentage):
     if status == submission_pb2.Submission.PENDING:
         return 'PENDING'
     if status == submission_pb2.Submission.TESTING:
@@ -26,7 +26,7 @@ def verdict(status, score):
     if status == submission_pb2.Submission.TIMEOUT:
         return 'TIMEOUT'
     if status == submission_pb2.Submission.COMPLETE:
-        return 'AC' if score == 100 else 'WA'
+        return 'AC' if percentage == 1 else 'WA'
     if status == submission_pb2.Submission.ERROR:
         return 'CE'
     if status == submission_pb2.Submission.FAILURE:
@@ -141,7 +141,7 @@ while True:
             participants[item.participant_id].name if item.participant_id in participants else item.participant_id,
             chr(ord('A') + problems[item.problem_id].index - 1) if item.problem_id in problems else '?',
             timestamp(item.submitted_at.seconds),
-            verdict(item.status, item.score),
+            verdict(item.status, item.percentage),
             item.score,
         ])
 
