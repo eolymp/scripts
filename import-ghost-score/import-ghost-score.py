@@ -2,21 +2,14 @@ import csv
 import os
 import sys
 
-import eolymp.universe.universe_pb2 as universe_pb2
-import eolymp.judge.judge_pb2 as judge_pb2
-import eolymp.judge.score_pb2 as score_pb2
-import eolymp.community.member_pb2 as member_pb2
-import eolymp.community.community_pb2 as community_pb2
-import eolymp.cognito.cognito_pb2 as cognito_pb2
-import eolymp.wellknown.expression_pb2 as expression_pb2
-from eolymp.core.http_client import HttpClient
-from eolymp.universe.universe_http import UniverseClient
-from eolymp.community.community_http import CommunityClient
-from eolymp.cognito.cognito_http import CognitoClient
-from eolymp.judge.judge_http import JudgeClient
+import eolymp.core
+import eolymp.universe
+import eolymp.community
+import eolymp.judge
+import eolymp.wellknown
 
-client = HttpClient(token=os.getenv("EOLYMP_TOKEN"))
-universe = UniverseClient(client)
+client = eolymp.core.HttpClient(token=os.getenv("EOLYMP_TOKEN"))
+universe = eolymp.universe.UniverseClient(client)
 
 
 def usage():
@@ -51,7 +44,7 @@ score_file = sys.argv[4]
 
 # lookup space
 try:
-    out = universe.LookupSpace(universe_pb2.LookupSpaceInput(key=space_key))
+    out = universe.LookupSpace(eolymp.universe.LookupSpaceInput(key=space_key))
     space = out.space
     print("Found space \"{}\"".format(space.name))
 except Exception as e:
@@ -59,18 +52,18 @@ except Exception as e:
     usage()
     sys.exit(-1)
 
-judge = JudgeClient(client, space.url)
-community = CommunityClient(client, space.url)
+judge = eolymp.judge.JudgeClient(client, space.url)
+community = eolymp.community.MemberServiceClient(client, space.url)
 
 # lookup contest
 problem_index_to_id = {}
 
 try:
-    out = judge.DescribeContest(judge_pb2.DescribeContestInput(contest_id=contest_id))
+    out = judge.DescribeContest(eolymp.judge.DescribeContestInput(contest_id=contest_id))
     contest = out.contest
     print("Found contest \"{}\"".format(contest.name))
 
-    out = judge.ListProblems(judge_pb2.ListProblemsInput(contest_id=contest_id))
+    out = judge.ListProblems(eolymp.judge.ListProblemsInput(contest_id=contest_id))
     for item in out.items:
         print("  - Found problem #{} with index \"{}\"".format(item.id, item.index))
         problem_index_to_id[item.index] = item.id
@@ -82,7 +75,7 @@ except Exception as e:
 
 # lookup member
 try:
-    out = community.DescribeMember(community_pb2.DescribeMemberInput(member_id=member_id))
+    out = community.DescribeMember(eolymp.community.DescribeMemberInput(member_id=member_id))
     member = out.member
     print("Found member \"{}\"".format(member.name))
 except Exception as e:
@@ -93,17 +86,17 @@ except Exception as e:
 
 # lookup participant
 try:
-    match = expression_pb2.ExpressionID(value=member_id)
-    setattr(match, "is", expression_pb2.ExpressionID.EQUAL)
+    match = eolymp.wellknown.ExpressionID(value=member_id)
+    setattr(match, "is", eolymp.wellknown.ExpressionID.EQUAL)
 
-    out = judge.ListParticipants(judge_pb2.ListParticipantsInput(contest_id=contest_id, filters=judge_pb2.ListParticipantsInput.Filter(member_id=[match])))
+    out = judge.ListParticipants(eolymp.judge.ListParticipantsInput(contest_id=contest_id, filters=eolymp.judge.ListParticipantsInput.Filter(member_id=[match])))
     if len(out.items) > 0:
         participant = out.items[0]
         print("Found participant \"{}\"".format(participant.name))
         participant_id = participant.id
     else:
         print("Member is not participating in the contest, adding...")
-        out = judge.AddParticipant(judge_pb2.AddParticipantInput(contest_id=contest_id, member_id=member_id))
+        out = judge.AddParticipant(eolymp.judge.AddParticipantInput(contest_id=contest_id, participant=eolymp.judge.Participant(member_id=member_id)))
         print("Participant #{} created".format(out.participant_id))
         participant_id = out.participant_id
 
@@ -141,7 +134,7 @@ for row in reader:
     if "total_score" not in data:
         continue
 
-    score = score_pb2.Score(valid_after=int(data["time_offset"]), score=int(data["total_score"]))
+    score = eolymp.judge.Score(valid_after=int(data["time_offset"]), score=int(data["total_score"]))
     if "total_penalty" in data:
         score.penalty = int(data["total_penalty"])
 
@@ -150,7 +143,7 @@ for row in reader:
         if prefix + "_score" not in data:
             continue
 
-        breakdown = score_pb2.Score.Problem(problem_id=problem_index_to_id[index], score=int(data[prefix + "_score"]))
+        breakdown = eolymp.judge.Score.Problem(problem_id=problem_index_to_id[index], score=int(data[prefix + "_score"]))
         if prefix + "_penalty" in data:
             breakdown.penalty = int(data[prefix + "_penalty"])
         if prefix + "_percentage" in data:
@@ -166,7 +159,7 @@ for row in reader:
 
 # import score
 try:
-    judge.ImportScore(judge_pb2.ImportScoreInput(contest_id=contest_id, participant_id=participant_id, scores=scores))
+    judge.ImportScore(eolymp.judge.ImportScoreInput(contest_id=contest_id, participant_id=participant_id, scores=scores))
 except Exception as e:
     print("An error occurred while importing score: {}".format(e))
     sys.exit(-1)

@@ -1,21 +1,17 @@
 import csv
 import os
 
-import eolymp.universe.universe_pb2 as universe_pb2
-import eolymp.community.member_pb2 as member_pb2
-import eolymp.community.community_pb2 as community_pb2
-import eolymp.cognito.cognito_pb2 as cognito_pb2
-import eolymp.wellknown.expression_pb2 as expression_pb2
-from eolymp.core.http_client import HttpClient
-from eolymp.universe.universe_http import UniverseClient
-from eolymp.community.community_http import CommunityClient
-from eolymp.cognito.cognito_http import CognitoClient
+import eolymp.universe
+import eolymp.community
+import eolymp.cognito
+import eolymp.wellknown
+import eolymp.core
 
-client = HttpClient(token=os.getenv("EOLYMP_TOKEN"))
-universe = UniverseClient(client)
-cognito = CognitoClient(client)
-lookup = universe.LookupSpace(universe_pb2.LookupSpaceInput(key=os.getenv("EOLYMP_SPACE")))
-community = CommunityClient(client, lookup.space.url)
+client = eolymp.core.HttpClient(token=os.getenv("EOLYMP_TOKEN"))
+universe = eolymp.universe.UniverseClient(client)
+cognito = eolymp.cognito.CognitoClient(client)
+lookup = universe.LookupSpace(eolymp.universe.LookupSpaceInput(key=os.getenv("EOLYMP_SPACE")))
+community = eolymp.community.MemberServiceClient(client, lookup.space.url)
 
 
 def get_members_map():
@@ -23,7 +19,7 @@ def get_members_map():
     offset = 0
 
     while True:
-        listing = community.ListMembers(community_pb2.ListMembersInput(offset=offset, size=100))
+        listing = community.ListMembers(eolymp.community.ListMembersInput(offset=offset, size=100))
         for item in listing.items:
             print("Reading existing member \"{}\" with ID {}".format(item.name, item.id))
             mm[item.name] = item
@@ -36,7 +32,7 @@ def get_members_map():
 
 
 def identity_with_password(name, password):
-    return member_pb2.Member.Identity(
+    return eolymp.community.Member.Identity(
         issuer=lookup.space.url,
         nickname=name,
         password=password
@@ -44,17 +40,17 @@ def identity_with_password(name, password):
 
 
 def identity_with_user_id(name, user_id):
-    return member_pb2.Member.Identity(
+    return eolymp.community.Member.Identity(
         issuer="https://accounts.eolymp.com",
         subject=user_id,
     )
 
 
 def identity_with_username(name, username):
-    expr = expression_pb2.ExpressionString(value=username)
-    setattr(expr, 'is', expression_pb2.ExpressionString.EQUAL)
+    expr = eolymp.wellknown.ExpressionString(value=username)
+    setattr(expr, 'is', eolymp.wellknown.ExpressionString.EQUAL)
 
-    out = cognito.ListUsers(cognito_pb2.ListUsersInput(filters=cognito_pb2.ListUsersInput.Filter(
+    out = cognito.ListUsers(eolymp.cognito.ListUsersInput(filters=eolymp.cognito.ListUsersInput.Filter(
         username=[expr]
     )))
 
@@ -97,16 +93,16 @@ for row in reader:
     # member with given name already exists, updating...
     if data["name"] in members:
         member = members[data["name"]]
-        community.UpdateMember(community_pb2.UpdateMemberInput(
+        community.UpdateMember(eolymp.community.UpdateMemberInput(
             member_id=member.id,  # member to update
-            patch=[community_pb2.UpdateMemberInput.IDENTITIES],  # only update identities
-            member=member_pb2.Member(identities=[identity])  # changes
+            patch=[eolymp.community.UpdateMemberInput.IDENTITIES],  # only update identities
+            member=eolymp.community.Member(identities=[identity])  # changes
         ))
 
         print("Member {} has been updated".format(member.id))
     else:
-        out = community.AddMember(community_pb2.AddMemberInput(
-            member=member_pb2.Member(name=data["name"], identities=[identity])
+        out = community.CreateMember(eolymp.community.CreateMemberInput(
+            member=eolymp.community.Member(name=data["name"], identities=[identity])
         ))
 
         print("Member {} has been added".format(out.member_id))

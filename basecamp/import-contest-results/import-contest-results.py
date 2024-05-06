@@ -7,13 +7,12 @@ import eolymp.judge.judge_pb2 as judge_pb2
 import eolymp.judge.participant_pb2 as participant_pb2
 import eolymp.judge.medal_pb2 as medal_pb2
 import eolymp.wellknown.expression_pb2 as expression_pb2
-import eolymp.judge.score_pb2 as score_pb2
-from eolymp.core.http_client import HttpClient
-from eolymp.universe.universe_http import UniverseClient
-from eolymp.judge.judge_http import JudgeClient
+import eolymp.core
+import eolymp.universe
+import eolymp.judge
 
-client = HttpClient(token=os.getenv("EOLYMP_TOKEN"))
-universe = UniverseClient(client)
+client = eolymp.core.HttpClient(token=os.getenv("EOLYMP_TOKEN"))
+universe = eolymp.universe.UniverseClient(client)
 
 
 def usage():
@@ -42,7 +41,7 @@ score_file = sys.argv[3]
 
 # lookup space
 try:
-    out = universe.LookupSpace(universe_pb2.LookupSpaceInput(key=space_key))
+    out = universe.LookupSpace(eolymp.universe.LookupSpaceInput(key=space_key))
     space = out.space
     print("Found space \"{}\"".format(space.name))
 except Exception as e:
@@ -50,17 +49,17 @@ except Exception as e:
     usage()
     sys.exit(-1)
 
-judge = JudgeClient(client, space.url)
+judge = eolymp.judge.JudgeClient(client, space.url)
 
 # lookup contest
 problem_index_to_id = {}
 
 try:
-    out = judge.DescribeContest(judge_pb2.DescribeContestInput(contest_id=contest_id))
+    out = judge.DescribeContest(eolymp.judge.DescribeContestInput(contest_id=contest_id))
     contest = out.contest
     print("Found contest \"{}\"".format(contest.name))
 
-    out = judge.ListProblems(judge_pb2.ListProblemsInput(contest_id=contest_id))
+    out = judge.ListProblems(eolymp.judge.ListProblemsInput(contest_id=contest_id))
     for item in out.items:
         print("  - Found problem #{} with index \"{}\"".format(item.id, item.index))
         problem_index_to_id[item.index] = item.id
@@ -99,9 +98,9 @@ for row in reader:
     expr = expression_pb2.ExpressionString(value=name)
     expr.__setattr__('is', expression_pb2.ExpressionString.EQUAL)
 
-    out = judge.ListParticipants(judge_pb2.ListParticipantsInput(
+    out = judge.ListParticipants(eolymp.judge.ListParticipantsInput(
         contest_id=contest_id,
-        filters=judge_pb2.ListParticipantsInput.Filter(name=[expr]),
+        filters=eolymp.judge.ListParticipantsInput.Filter(name=[expr]),
     ))
 
     participant_id = None
@@ -109,7 +108,7 @@ for row in reader:
     if len(out.items) == 0:
         print("Participant {} does not exists, adding...".format(name))
 
-        out = judge.AddParticipant(judge_pb2.AddParticipantInput(contest_id=contest_id, participant=participant_pb2.Participant(
+        out = judge.AddParticipant(eolymp.judge.AddParticipantInput(contest_id=contest_id, participant=participant_pb2.Participant(
             name=name,
             ghost=True,
             active=True
@@ -128,20 +127,20 @@ for row in reader:
 
         participant_id = out.items[0].id
 
-    score = score_pb2.Score(valid_after=int(0), score=int(0))
+    score = eolymp.judge.Score(valid_after=int(0), score=int(0))
     for index in problem_index_to_id:
         prefix = "p" + str(index)
         if prefix + "_score" not in data:
             continue
 
-        breakdown = score_pb2.Score.Problem(problem_id=problem_index_to_id[index], percentage=float(data[prefix + "_score"])/100, score=float(data[prefix + "_score"]))
+        breakdown = eolymp.judge.Score.Problem(problem_id=problem_index_to_id[index], percentage=float(data[prefix + "_score"])/100, score=float(data[prefix + "_score"]))
         score.breakdown.append(breakdown)
         score.score += breakdown.score
 
     print("Import total score {} for {}...".format(score.score, participant_id))
 
     try:
-        judge.ImportScore(judge_pb2.ImportScoreInput(contest_id=contest_id, participant_id=participant_id, scores=[score]))
+        judge.ImportScore(eolymp.judge.ImportScoreInput(contest_id=contest_id, participant_id=participant_id, scores=[score]))
     except Exception as e:
         print("An error occurred while importing score: {}".format(e))
         sys.exit(-1)
@@ -155,9 +154,9 @@ for row in reader:
         if data["medal"] == "BRONZE":
             medal = medal_pb2.BRONZE_MEDAL
 
-        judge.UpdateParticipant(judge_pb2.UpdateParticipantInput(
+        judge.UpdateParticipant(eolymp.judge.UpdateParticipantInput(
             contest_id=contest_id,
             participant_id=participant_id,
             participant=participant_pb2.Participant(medal=medal),
-            patch=[judge_pb2.UpdateParticipantInput.MEDAL],
+            patch=[eolymp.judge.UpdateParticipantInput.MEDAL],
         ))

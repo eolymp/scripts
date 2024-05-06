@@ -5,13 +5,10 @@ import sys
 import time
 import csv
 
-import eolymp.universe.universe_pb2 as universe_pb2
-import eolymp.judge.judge_pb2 as judge_pb2
-import eolymp.judge.submission_pb2 as submission_pb2
-import eolymp.wellknown.expression_pb2 as expression_pb2
-from eolymp.core.http_client import HttpClient
-from eolymp.universe.universe_http import UniverseClient
-from eolymp.judge.judge_http import JudgeClient
+import eolymp.core
+import eolymp.universe
+import eolymp.judge
+import eolymp.wellknown
 
 
 def timestamp(ts: int):
@@ -19,17 +16,17 @@ def timestamp(ts: int):
 
 
 def verdict(status, percentage):
-    if status == submission_pb2.Submission.PENDING:
+    if status == eolymp.judge.Submission.PENDING:
         return 'PENDING'
-    if status == submission_pb2.Submission.TESTING:
+    if status == eolymp.judge.Submission.TESTING:
         return 'TESTING'
-    if status == submission_pb2.Submission.TIMEOUT:
+    if status == eolymp.judge.Submission.TIMEOUT:
         return 'TIMEOUT'
-    if status == submission_pb2.Submission.COMPLETE:
+    if status == eolymp.judge.Submission.COMPLETE:
         return 'AC' if percentage == 1 else 'WA'
-    if status == submission_pb2.Submission.ERROR:
+    if status == eolymp.judge.Submission.ERROR:
         return 'CE'
-    if status == submission_pb2.Submission.FAILURE:
+    if status == eolymp.judge.Submission.FAILURE:
         return 'FAILURE'
 
 
@@ -49,27 +46,27 @@ parser.add_argument('contest_id', help="Contest ID")
 parser.add_argument('output', help="Output file")
 
 args = parser.parse_args()
-client = HttpClient(token=os.getenv("EOLYMP_TOKEN"))
+client = eolymp.core.HttpClient(token=os.getenv("EOLYMP_TOKEN"))
 
 # lookup space
-universe = UniverseClient(client)
+universe = eolymp.universe.UniverseClient(client)
 try:
-    out = universe.LookupSpace(universe_pb2.LookupSpaceInput(key=args.space_key))
+    out = universe.LookupSpace(eolymp.universe.LookupSpaceInput(key=args.space_key))
     space = out.space
     print("Found space \"{}\"".format(space.name))
 except Exception as e:
     print("An error occurred while loading space with key \"{}\": {}".format(args.space_key, e))
     sys.exit(-1)
 
-judge = JudgeClient(client, space.url)
+judge = eolymp.judge.JudgeClient(client, space.url)
 
 # lookup contest
 problems = {}
 try:
-    out = judge.DescribeContest(judge_pb2.DescribeContestInput(contest_id=args.contest_id))
+    out = judge.DescribeContest(eolymp.judge.DescribeContestInput(contest_id=args.contest_id))
     contest = out.contest
     print("Found contest \"{}\"".format(contest.name))
-    out = judge.ListProblems(judge_pb2.ListProblemsInput(contest_id=args.contest_id))
+    out = judge.ListProblems(eolymp.judge.ListProblemsInput(contest_id=args.contest_id))
     for item in out.items:
         print("  - Found problem #{}".format(item.id))
         problems[item.id] = item
@@ -83,7 +80,7 @@ participants = {}
 offset = 0
 size = 100
 while True:
-    out = judge.ListParticipants(judge_pb2.ListParticipantsInput(contest_id=contest.id, size=size, offset=offset))
+    out = judge.ListParticipants(eolymp.judge.ListParticipantsInput(contest_id=contest.id, size=size, offset=offset))
     for item in out.items:
         participants[item.id] = item
 
@@ -99,18 +96,18 @@ writer = csv.writer(file)
 # compose submission filters
 filters = {}
 if args.p:
-    exp = expression_pb2.ExpressionID(value=args.p)
-    setattr(exp, "is", expression_pb2.ExpressionID.EQUAL)
+    exp = eolymp.wellknown.ExpressionID(value=args.p)
+    setattr(exp, "is", eolymp.wellknown.ExpressionID.EQUAL)
     filters['problem_id'] = [exp]
 
 if args.s:
-    exp = expression_pb2.ExpressionEnum(value=args.s)
-    setattr(exp, "is", expression_pb2.ExpressionEnum.EQUAL)
+    exp = eolymp.wellknown.ExpressionEnum(value=args.s)
+    setattr(exp, "is", eolymp.wellknown.ExpressionEnum.EQUAL)
     filters['status'] = [exp]
 
 if args.u:
-    exp = expression_pb2.ExpressionID(value=args.u)
-    setattr(exp, "is", expression_pb2.ExpressionID.EQUAL)
+    exp = eolymp.wellknown.ExpressionID(value=args.u)
+    setattr(exp, "is", eolymp.wellknown.ExpressionID.EQUAL)
     filters['participant_id'] = [exp]
 
 # write header row
@@ -121,11 +118,11 @@ count = 0
 offset = 0
 size = 25
 while True:
-    out = judge.ListSubmissions(judge_pb2.ListSubmissionsInput(
+    out = judge.ListSubmissions(eolymp.judge.ListSubmissionsInput(
         size=size,
         offset=offset,
         contest_id=args.contest_id,
-        filters=judge_pb2.ListSubmissionsInput.Filter(**filters)
+        filters=eolymp.judge.ListSubmissionsInput.Filter(**filters)
     ))
 
     count += len(out.items)
