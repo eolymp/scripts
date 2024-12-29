@@ -32,6 +32,7 @@ For either identity provider, you can add additional information:
 
 - **inactive** - yes/no flag to mark member as inactive
 - **unofficial** - yes/no flag to mark member as unofficial
+- **groups** - space separated list of group IDs
 - **attr_\<key\>** - additional [profile fields](https://support.eolymp.com/coaching/members/configure-profile), where `<key>` is the attribute key 
 
 An example of CSV file for Eolymp Identity Provider:

@@ -153,6 +153,7 @@ for row in reader:
         user=user,
         inactive=to_bool(data["inactive"]) if "inactive" in data else False,
         rating=int(data["rating"]) if "rating" in data else 0,
+        groups=data["groups"].split(" ") if "groups" in data else [],
         unofficial=to_bool(data["unofficial"]) if "unofficial" in data else False,
         attributes=to_values(attributes, data),
     )
@@ -169,6 +170,9 @@ for row in reader:
 
         if "inactive" in data:
             patch.append(eolymp.community.UpdateMemberInput.INACTIVE)
+
+        if "groups" in data:
+            patch.append(eolymp.community.UpdateMemberInput.GROUPS)
 
         if member.attributes:
             patch.append(eolymp.community.UpdateMemberInput.ATTRIBUTES)
