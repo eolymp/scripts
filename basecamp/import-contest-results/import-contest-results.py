@@ -2,11 +2,9 @@ import csv
 import os
 import sys
 
-import eolymp.universe.universe_pb2 as universe_pb2
-import eolymp.judge.judge_pb2 as judge_pb2
-import eolymp.judge.participant_pb2 as participant_pb2
-import eolymp.judge.medal_pb2 as medal_pb2
-import eolymp.wellknown.expression_pb2 as expression_pb2
+import eolymp.universe
+import eolymp.judge
+import eolymp.wellknown
 import eolymp.core
 import eolymp.universe
 import eolymp.judge
@@ -95,8 +93,11 @@ for row in reader:
 
     name = data["name"]
 
-    expr = expression_pb2.ExpressionString(value=name)
-    expr.__setattr__('is', expression_pb2.ExpressionString.EQUAL)
+    if not name:
+        continue
+
+    expr = eolymp.wellknown.ExpressionString(value=name)
+    expr.__setattr__('is', eolymp.wellknown.ExpressionString.EQUAL)
 
     out = judge.ListParticipants(eolymp.judge.ListParticipantsInput(
         contest_id=contest_id,
@@ -108,10 +109,9 @@ for row in reader:
     if len(out.items) == 0:
         print("Participant {} does not exists, adding...".format(name))
 
-        out = judge.AddParticipant(eolymp.judge.AddParticipantInput(contest_id=contest_id, participant=participant_pb2.Participant(
+        out = judge.AssignParticipant(eolymp.judge.AssignParticipantInput(contest_id=contest_id, participant=eolymp.judge.Participant(
             name=name,
             ghost=True,
-            active=True
         )))
 
         participant_id = out.participant_id
@@ -146,17 +146,17 @@ for row in reader:
         sys.exit(-1)
 
     if "medal" in data:
-        medal = medal_pb2.NO_MEDAL
-        if data["medal"] == "GOLD":
-            medal = medal_pb2.GOLD_MEDAL
-        if data["medal"] == "SILVER":
-            medal = medal_pb2.SILVER_MEDAL
-        if data["medal"] == "BRONZE":
-            medal = medal_pb2.BRONZE_MEDAL
+        medal = eolymp.judge.NO_MEDAL
+        if data["medal"] == "GOLD" or  data["medal"] == "Gold":
+            medal = eolymp.judge.GOLD_MEDAL
+        if data["medal"] == "SILVER" or data["medal"] == "Silver":
+            medal = eolymp.judge.SILVER_MEDAL
+        if data["medal"] == "BRONZE" or data["medal"] == "Bronze":
+            medal = eolymp.judge.BRONZE_MEDAL
 
         judge.UpdateParticipant(eolymp.judge.UpdateParticipantInput(
             contest_id=contest_id,
             participant_id=participant_id,
-            participant=participant_pb2.Participant(medal=medal),
-            patch=[eolymp.judge.UpdateParticipantInput.MEDAL],
+            participant=eolymp.judge.Participant(medal=medal, name=name),
+            patch=[eolymp.judge.UpdateParticipantInput.MEDAL,eolymp.judge.UpdateParticipantInput.NAME],
         ))

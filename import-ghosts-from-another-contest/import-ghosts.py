@@ -106,8 +106,8 @@ for participant in participants:
         continue
     new_member = eolymp.community.Member(ghost=eolymp.community.Ghost(name=participant[1]))
     member_id = community_to.CreateMember(eolymp.community.CreateMemberInput(member=new_member)).member_id
-    participant_id = judge_to.AddParticipant(
-        eolymp.judge.AddParticipantInput(
+    participant_id = judge_to.AssignParticipant(
+        eolymp.judge.AssignParticipantInput(
             contest_id=contest_id_to,
             participant=eolymp.judge.Participant(member_id=member_id, name=participant[1])
         )

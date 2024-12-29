@@ -26,7 +26,7 @@ args = parser.parse_args()
 client = eolymp.core.HttpClient(token=os.getenv("EOLYMP_TOKEN"))
 
 # lookup space
-universe = eolymp.universe.UniverseClient(client)
+universe = eolymp.universe.SpaceServiceClient(client)
 try:
     out = universe.LookupSpace(eolymp.universe.LookupSpaceInput(key=args.space_key))
     space = out.space

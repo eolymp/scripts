@@ -96,7 +96,7 @@ try:
         participant_id = participant.id
     else:
         print("Member is not participating in the contest, adding...")
-        out = judge.AddParticipant(eolymp.judge.AddParticipantInput(contest_id=contest_id, participant=eolymp.judge.Participant(member_id=member_id)))
+        out = judge.AssignParticipant(eolymp.judge.AssignParticipantInput(contest_id=contest_id, participant=eolymp.judge.Participant(member_id=member_id)))
         print("Participant #{} created".format(out.participant_id))
         participant_id = out.participant_id
 
