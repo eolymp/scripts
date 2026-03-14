@@ -38,7 +38,7 @@ Once you have prepared CSV file you have to save it and import it using `import-
 - **space-key** - the key (not ID) for the space where contest and member are created
 - **contest-id** - contest where results should be imported. You can copy this value from console URL, for example a contest https://console.eolymp.com/basecamp/contests/123, has contest-id = 123.
 
-The script requires environment variable `EOLYMP_TOKEN` with API key or your access token. To get an API key you can use https://developer.eolymp.com, the key must have all `judge:` scopes. 
+The script requires environment variable `EOLYMP_TOKEN` with API key or your access token. To get an API key you can use https://accounts.eolymp.com/developer, the key must have all `judge:` scopes. 
 
 Execute script:
 

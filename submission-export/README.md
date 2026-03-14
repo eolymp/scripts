@@ -4,7 +4,7 @@ This script allows to automatically export contest submissions. Using additional
 
 ## Usage
 
-This script requires environment variable `EOLYMP_TOKEN` with an [API key](https://developer.eolymp.com/) or your access token.
+This script requires environment variable `EOLYMP_TOKEN` with an [API key](https://accounts.eolymp.com/developer) or your access token.
 
 Execute script with `space-key`, `contest-id` and `output-filename` arguments.
 

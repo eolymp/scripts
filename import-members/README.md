@@ -4,7 +4,7 @@ This script allows to automatically add members to the space.
 
 ## Usage
 
-This script requires environment variable `EOLYMP_TOKEN` with an [API key](https://developer.eolymp.com/) or your access token.
+This script requires environment variable `EOLYMP_TOKEN` with an [API key](https://accounts.eolymp.com/developer) or your access token.
 
 Execute script with `space-key` and `input-filename` arguments.
 
