@@ -55,7 +55,7 @@ size = 100
 while True:
     listing = member_svc.ListMembers(eolymp.community.ListMembersInput(size=size, offset=offset))
     for m in listing.items:
-        members_by_name[m.display_name] = m
+        members_by_name[m.display_name.strip()] = m
     offset += size
     if listing.total <= offset:
         break
@@ -91,6 +91,9 @@ for row in rows:
         print("  Added \"{}\" (member #{}) as participant".format(display_name, member.id))
         count += 1
     except Exception as e:
-        print("  ERROR: Failed to add \"{}\": {}".format(display_name, e))
+        if "409" in str(e):
+            print("  Skipped \"{}\" (already a participant)".format(display_name))
+        else:
+            print("  ERROR: Failed to add \"{}\": {}".format(display_name, e))
 
 print("{} participant(s) added".format(count))
